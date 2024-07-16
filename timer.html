@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pomodoro Timer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@500&display=swap" rel="stylesheet">
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #2c2f38;
+      color: white;
+    }
+
+    .timer-container {
+      text-align: center;
+    }
+
+    .timer-container h1 {
+      margin-bottom: 30px;
+      font-family: 'Roboto Mono', monospace;
+    }
+
+    .timer {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto;
+    }
+
+    .circle-bg, .circle-fg {
+      fill: none;
+      stroke-width: 10;
+    }
+
+    .circle-bg {
+      stroke: grey;
+    }
+
+    .circle-fg {
+      stroke: #468D82;
+      transition: stroke-dashoffset 1s linear;
+    }
+
+    .timer-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Roboto Mono', monospace;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      margin-top: 20px;
+    }
+
+    .buttons button {
+      background: #468D82;
+      border: none;
+      color: white;
+      padding: 15px 30px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      margin: 4px 2px;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .buttons button:hover {
+      background: #3b7b72;
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body>
+  <div class="timer-container">
+    <h1>Pomodoro Timer</h1>
+    <div class="timer">
+      <svg width="200" height="200">
+        <!-- Outer Circle for Seconds -->
+        <circle cx="100" cy="100" r="90" class="circle-bg" />
+        <circle cx="100" cy="100" r="90" class="circle-fg" id="seconds-circle" stroke-dasharray="565.48" stroke-dashoffset="565.48" />
+
+        <!-- Inner Circle for Minutes -->
+        <circle cx="100" cy="100" r="70" class="circle-bg" />
+        <circle cx="100" cy="100" r="70" class="circle-fg" id="minutes-circle" stroke-dasharray="439.82" stroke-dashoffset="439.82" />
+      </svg>
+      <div class="timer-text" id="timer-text">25:00</div>
+    </div>
+    <div class="timer-label">
+      <span id="timer-label">Minutes</span>
+    </div>
+    <div class="buttons">
+      <button onclick="startTimer()">Start</button>
+      <button onclick="stopTimer()">Stop</button>
+      <button onclick="resetTimer()">Reset</button>
+    </div>
+  </div>
+  <script>
+    let timerLabel = document.getElementById('timer-label');
+    let secondsCircle = document.getElementById('seconds-circle');
+    let minutesCircle = document.getElementById('minutes-circle');
+    let timerText = document.getElementById('timer-text');
+    let minutes = 25;
+    let seconds = 0;
+    let timer;
+    let isRunning = false;
+
+    function startTimer() {
+      if (isRunning) return;
+      isRunning = true;
+      timerLabel.textContent = 'Focus';
+      if (!timer) {
+        timer = setInterval(() => {
+          if (seconds === 0) {
+            if (minutes === 0) {
+              clearInterval(timer);
+              timer = null;
+              timerLabel.textContent = 'Break';
+              minutes = 5;
+              seconds = 0;
+              startTimer();
+              return;
+            } else {
+              minutes--;
+              seconds = 59;
+            }
+          } else {
+            seconds--;
+          }
+          updateDisplay();
+          updateProgress();
+        }, 1000);
+      }
+    }
+
+    function stopTimer() {
+      clearInterval(timer);
+      timer = null;
+      isRunning = false;
+      timerLabel.textContent = 'Stopped';
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      timer = null;
+      minutes = 25;
+      seconds = 0;
+      timerLabel.textContent = 'Minutes';
+      isRunning = false;
+      updateDisplay();
+      updateProgress();
+    }
+
+    function updateDisplay() {
+      timerText.textContent = `${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+    }
+
+    function updateProgress() {
+      const totalMinutes = 25;
+      const totalSeconds = 60;
+
+      const minutesProgress = (1 - minutes / totalMinutes) * 439.82;
+      const secondsProgress = (1 - seconds / totalSeconds) * 565.48;
+
+      minutesCircle.style.strokeDashoffset = 439.82 - minutesProgress;
+      secondsCircle.style.strokeDashoffset = 565.48 - secondsProgress;
+    }
+
+    updateDisplay();
+    updateProgress();
+  </script>
+</body>
+</html>
