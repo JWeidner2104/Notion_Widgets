@@ -88,7 +88,7 @@
     }
 
     .control-container {
-      display: flex;
+      display: none;
       flex-direction: column;
       align-items: center;
       gap: 10px;
@@ -107,6 +107,24 @@
       border: 1px solid #ccc;
       border-radius: 4px;
       width: 200px;
+    }
+
+    #toggle-controls-btn {
+      margin-top: 20px;
+      background: #468D82;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    #toggle-controls-btn:hover {
+      background: #3b7b72;
+      transform: scale(1.05);
     }
 
     #confetti-canvas {
@@ -141,7 +159,8 @@
       <button onclick="resetTimer()">Reset</button>
       <button onclick="finishTimer()">Finish</button>
     </div>
-    <div class="control-container">
+    <button id="toggle-controls-btn" onclick="toggleControls()">Show Controls</button>
+    <div class="control-container" id="control-container">
       <div>
         <label for="speed-slider">Speed:</label>
         <input type="range" id="speed-slider" min="1" max="5" value="1" step="1">
@@ -194,11 +213,23 @@
     let confettiCanvas = document.getElementById('confetti-canvas');
     let confettiCtx = confettiCanvas.getContext('2d');
     let soundStyle = document.getElementById('sound-style');
+    let controlContainer = document.getElementById('control-container');
+    let toggleControlsBtn = document.getElementById('toggle-controls-btn');
     let minutes = parseInt(durationInput.value, 10);
     let seconds = 0;
     let timer;
     let isRunning = false;
     let speed = 1;
+
+    function toggleControls() {
+      if (controlContainer.style.display === "none" || controlContainer.style.display === "") {
+        controlContainer.style.display = "flex";
+        toggleControlsBtn.textContent = "Hide Controls";
+      } else {
+        controlContainer.style.display = "none";
+        toggleControlsBtn.textContent = "Show Controls";
+      }
+    }
 
     function resizeCanvas() {
       confettiCanvas.width = window.innerWidth;
