@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pomodoro Timer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Helvetica+Neue:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.5.1/dist/confetti.browser.min.js"></script>
+  <style>
+    body, html {
+      margin: 0;
+      padding: 0;
+      font-family: 'Helvetica Neue', Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: #2c2f38;
+      color: white;
+      overflow: hidden;
+    }
+
+    .timer-container {
+      text-align: center;
+    }
+
+    .timer-container h1 {
+      margin-bottom: 30px;
+      font-family: 'Helvetica Neue', sans-serif;
+      font-weight: 500;
+    }
+
+    .timer {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      margin: 0 auto;
+    }
+
+    .circle-bg, .circle-fg {
+      fill: none;
+      stroke-width: 10;
+    }
+
+    .circle-bg {
+      stroke: grey;
+    }
+
+    .circle-fg {
+      stroke: #468D82;
+      transition: stroke-dashoffset 1s linear, stroke 1s linear;
+    }
+
+    .timer-text {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      font-family: 'Helvetica Neue', sans-serif;
+      font-size: 24px;
+      text-align: center;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .buttons button {
+      background: #468D82;
+      border: none;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      text-decoration: none;
+      display: inline-block;
+      font-size: 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.3s;
+    }
+
+    .buttons button:hover {
+      background: #3b7b72;
+      transform: scale(1.05);
+    }
+
+    .control-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      margin-top: 20px;
+    }
+
+    .control-container div {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .control-container input, .control-container select {
+      padding: 5px;
+      font-size: 16px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      width: 200px;
+    }
+
+    #confetti-canvas {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1000;
+    }
+  </style>
+</head>
+<body>
+  <div class="timer-container">
+    <h1>Pomodoro Timer</h1>
+    <div class="timer">
+      <svg width="200" height="200">
+        <circle cx="100" cy="100" r="90" class="circle-bg" />
+        <circle cx="100" cy="100" r="90" class="circle-fg" id="seconds-circle" stroke-dasharray="565.48" stroke-dashoffset="565.48" />
+        <circle cx="100" cy="100" r="70" class="circle-bg" />
+        <circle cx="100" cy="100" r="70" class="circle-fg" id="minutes-circle" stroke-dasharray="439.82" stroke-dashoffset="439.82" />
+      </svg>
+      <div class="timer-text" id="timer-text">25:00</div>
+    </div>
+    <div class="timer-label">
+      <span id="timer-label">Minutes</span>
+    </div>
+    <div class="buttons">
+      <button onclick="startTimer()">Start</button>
+      <button onclick="stopTimer()">Stop</button>
+      <button onclick="resetTimer()">Reset</button>
+      <button onclick="finishTimer()">Finish</button>
+    </div>
+    <div class="control-container">
+      <div>
+        <label for="speed-slider">Speed:</label>
+        <input type="range" id="speed-slider" min="1" max="5" value="1" step="1">
+      </div>
+      <div>
+        <label for="fireworks-checkbox">Enable Fireworks</label>
+        <input type="checkbox" id="fireworks-checkbox" checked>
+      </div>
+      <div>
+        <label for="duration-input">Timer Duration (minutes):</label>
+        <input type="number" id="duration-input" value="25" min="1" max="60">
+      </div>
+      <div>
+        <label for="confetti-style">Confetti Style:</label>
+        <select id="confetti-style">
+          <option value="basic">Basic</option>
+          <option value="realistic">Realistic</option>
+          <option value="snow">Snow</option>
+          <option value="schoolPride">School Pride</option>
+          <option value="fire">Fire</option>
+        </select>
+      </div>
+      <div>
+        <label for="sound-style">Sound:</label>
+        <select id="sound-style">
+          <option value="sound1">Sound 1</option>
+          <option value="sound2">Sound 2</option>
+          <option value="sound3">Sound 3</option>
+          <option value="sound4">Sound 4</option>
+          <option value="sound5">Sound 5</option>
+        </select>
+      </div>
+    </div>
+  </div>
+  <canvas id="confetti-canvas"></canvas>
+  <audio id="sound1" src="https://cdn.freesound.org/previews/413/413629_7062176-lq.mp3"></audio>
+  <audio id="sound2" src="https://cdn.freesound.org/previews/654/654033_14248671-lq.mp3"></audio>
+  <audio id="sound3" src="https://cdn.freesound.org/previews/60/60445_35187-lq.mp3"></audio>
+  <audio id="sound4" src="https://cdn.freesound.org/previews/717/717052_14446001-lq.mp3"></audio>
+  <audio id="sound5" src="https://cdn.freesound.org/previews/692/692523_5828667-lq.mp3"></audio>
+  <script>
+    let timerLabel = document.getElementById('timer-label');
+    let secondsCircle = document.getElementById('seconds-circle');
+    let minutesCircle = document.getElementById('minutes-circle');
+    let timerText = document.getElementById('timer-text');
+    let speedSlider = document.getElementById('speed-slider');
+    let fireworksCheckbox = document.getElementById('fireworks-checkbox');
+    let durationInput = document.getElementById('duration-input');
+    let confettiStyle = document.getElementById('confetti-style');
+    let confettiCanvas = document.getElementById('confetti-canvas');
+    let confettiCtx = confettiCanvas.getContext('2d');
+    let soundStyle = document.getElementById('sound-style');
+    let minutes = parseInt(durationInput.value, 10);
+    let seconds = 0;
+    let timer;
+    let isRunning = false;
+    let speed = 1;
+
+    function resizeCanvas() {
+      confettiCanvas.width = window.innerWidth;
+      confettiCanvas.height = window.innerHeight;
+    }
+    resizeCanvas();
+    window.addEventListener('resize', resizeCanvas);
+
+    speedSlider.addEventListener('input', function() {
+      speed = speedSlider.value;
+      if (timer) {
+        clearInterval(timer);
+        timer = setInterval(() => {
+          if (seconds === 0) {
+            if (minutes === 0) {
+              clearInterval(timer);
+              timer = null;
+              timerLabel.textContent = 'Break';
+              minutes = 5;
+              seconds = 0;
+              playSound();
+              if (fireworksCheckbox.checked) {
+                launchConfetti();
+              }
+              startTimer();
+              return;
+            } else {
+              minutes--;
+              seconds = 59;
+            }
+          } else {
+            seconds--;
+          }
+          updateDisplay();
+          updateProgress();
+        }, 1000 / speed);
+      }
+    });
+
+    durationInput.addEventListener('input', function() {
+      minutes = parseInt(durationInput.value, 10);
+      resetTimer();
+    });
+
+    function startTimer() {
+      if (isRunning) return;
+      isRunning = true;
+      timerLabel.textContent = 'Focus';
+      if (!timer) {
+        timer = setInterval(() => {
+          if (seconds === 0) {
+            if (minutes === 0) {
+              clearInterval(timer);
+              timer = null;
+              timerLabel.textContent = 'Break';
+              minutes = parseInt(durationInput.value, 10);
+              seconds = 0;
+              playSound();
+              if (fireworksCheckbox.checked) {
+                launchConfetti();
+              }
+              startTimer();
+              return;
+            } else {
+              minutes--;
+              seconds = 59;
+            }
+          } else {
+            seconds--;
+          }
+          updateDisplay();
+          updateProgress();
+        }, 1000 / speed);
+      }
+    }
+
+    function stopTimer() {
+      clearInterval(timer);
+      timer = null;
+      isRunning = false;
+      timerLabel.textContent = 'Stopped';
+    }
+
+    function resetTimer() {
+      clearInterval(timer);
+      timer = null;
+      minutes = parseInt(durationInput.value, 10);
+      seconds = 0;
+      timerLabel.textContent = 'Minutes';
+      isRunning = false;
+      updateDisplay();
+      updateProgress();
+    }
+
+    function finishTimer() {
+      playSound();
+      if (fireworksCheckbox.checked) {
+        launchConfetti();
+      }
+      resetTimer();
+    }
+
+    function playSound() {
+      let selectedSound = document.getElementById(soundStyle.value);
+      console.log(`Playing sound: ${soundStyle.value}`);
+      selectedSound.pause();
+      selectedSound.currentTime = 0;
+      selectedSound.play().catch(error => console.log(error));
+    }
+
+    function updateDisplay() {
+      timerText.textContent = `${minutes < 10 ? '0' + minutes : minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+    }
+
+    function updateProgress() {
+      const totalMinutes = parseInt(durationInput.value, 10);
+      const totalSeconds = 60;
+
+      const minutesProgress = (1 - minutes / totalMinutes) * 439.82;
+      const secondsProgress = (1 - seconds / totalSeconds) * 565.48;
+
+      minutesCircle.style.strokeDashoffset = 439.82 - minutesProgress;
+      secondsCircle.style.strokeDashoffset = 565.48 - secondsProgress;
+
+      const secondsRatio = seconds / totalSeconds;
+      const minutesRatio = minutes / totalMinutes;
+
+      const secondsRed = Math.min(255, Math.floor(255 * (1 - secondsRatio)));
+      const secondsGreen = Math.min(255, Math.floor(255 * secondsRatio * 0.7));
+      const minutesRed = Math.min(255, Math.floor(255 * (1 - minutesRatio)));
+      const minutesGreen = Math.min(255, Math.floor(255 * minutesRatio * 0.7));
+
+      secondsCircle.style.stroke = `rgb(${secondsRed},${secondsGreen},0)`;
+      minutesCircle.style.stroke = `rgb(${minutesRed},${minutesGreen},0)`;
+    }
+
+    function launchConfetti() {
+      const style = confettiStyle.value;
+      var duration = 10 * 1000;
+      var animationEnd = Date.now() + duration;
+      var defaults = { startVelocity: 70, spread: 1300, ticks: 300, zIndex: 0 };
+
+      function randomInRange(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      var interval = setInterval(function() {
+        var timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+          clearInterval(interval);
+          confetti.reset();
+          return;
+        }
+
+        var particleCount = 50 * (timeLeft / duration);
+
+        switch(style) {
+          case 'realistic':
+            confetti(Object.assign({}, defaults, {
+              particleCount: particleCount * 14,
+              spread: 1200,
+              origin: { y: 0.8 }
+            }));
+            break;
+          case 'snow':
+            confetti(Object.assign({}, defaults, {
+              particleCount: particleCount * 16,
+              spread: 520,
+              startVelocity: 50,
+              origin: { y: 0.1 },
+              colors: ['#ffffff'],
+              shapes: ['circle']
+            }));
+            break;
+          case 'schoolPride':
+            confetti(Object.assign({}, defaults, {
+              particleCount: particleCount * 10,
+              spread: 90,
+              angle: 60,
+              origin: { x: 0, y: 0.6 },
+              colors: ['#bb0000', '#ffffff']
+            }));
+            confetti(Object.assign({}, defaults, {
+              particleCount: particleCount * 10,
+              spread: 90,
+              angle: 120,
+              origin: { x: 1, y: 0.6 },
+              colors: ['#bb0000', '#ffffff']
+            }));
+            break;
+          case 'fire':
+            confetti(Object.assign({}, defaults, {
+              particleCount: particleCount * 10,
+              spread: 1200,
+              startVelocity: 60,
+              origin: { y: 0.7 },
+              colors: ['#ff0000', '#ff8300']
+            }));
+            break;
+          default:
+            confetti(Object.assign({}, defaults, {
+              particleCount: particleCount * 5,
+              spread: 1200,
+              origin: { y: 0.6 }
+            }));
+            break;
+        }
+      }, 750);
+    }
+
+    updateDisplay();
+    updateProgress();
+  </script>
+</body>
+</html>
