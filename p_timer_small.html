@@ -14,7 +14,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      height: 50vh; /* Adjusted to half the size of viewport height */
+      height: 50vh; /* Adjusted height for a banner-like appearance */
       background: #2c2f38;
       color: white;
       overflow: hidden;
@@ -22,21 +22,21 @@
 
     .timer-container {
       text-align: center;
-      transform: scale(0.8); /* Scale down everything to 50% */
-      transform-origin: top center; /* Ensure scaling occurs from the top center */
+      transform: scale(0.7); /* Scale down to 70% */
+      transform-origin: top center;
     }
 
     .timer-container h1 {
-      margin-bottom: 15px; /* Reduced margin */
+      margin-bottom: 15px;
       font-family: 'Helvetica Neue', sans-serif;
       font-weight: 500;
-      font-size: 18px; /* Reduced font size */
+      font-size: 18px;
     }
 
     .timer {
       position: relative;
-      width: 100px; /* Reduced size */
-      height: 100px; /* Reduced size */
+      width: 150px; /* Adjusted size */
+      height: 150px; /* Adjusted size */
       margin: 0 auto;
     }
 
@@ -51,26 +51,26 @@
       left: 50%;
       transform: translate(-50%, -50%);
       font-family: 'Helvetica Neue', sans-serif;
-      font-size: 12px; /* Reduced font size */
+      font-size: 18px; /* Adjusted font size */
       text-align: center;
     }
 
     .buttons {
       display: flex;
       justify-content: center;
-      gap: 5px; /* Reduced gap */
-      margin-top: 10px; /* Reduced margin */
+      gap: 5px;
+      margin-top: 10px;
     }
 
     .buttons button {
       background: #468D82;
       border: none;
       color: white;
-      padding: 5px 10px; /* Reduced padding */
+      padding: 5px 10px; /* Adjusted padding */
       text-align: center;
       text-decoration: none;
       display: inline-block;
-      font-size: 8px; /* Reduced font size */
+      font-size: 10px; /* Adjusted font size */
       border-radius: 8px;
       cursor: pointer;
       transition: background 0.3s, transform 0.3s;
@@ -83,34 +83,35 @@
 
     .control-container {
       display: none;
-      flex-direction: column;
+      justify-content: center;
       align-items: center;
-      gap: 5px; /* Reduced gap */
-      margin-top: 10px; /* Reduced margin */
+      gap: 10px;
+      margin-top: 10px;
+      flex-wrap: wrap;
     }
 
     .control-container div {
       display: flex;
       align-items: center;
-      gap: 5px; /* Reduced gap */
+      gap: 5px;
     }
 
     .control-container input, .control-container select {
-      padding: 2px; /* Reduced padding */
-      font-size: 8px; /* Reduced font size */
+      padding: 2px;
+      font-size: 10px; /* Adjusted font size */
       border: 1px solid #ccc;
       border-radius: 4px;
-      width: 100px; /* Reduced width */
+      width: 100px; /* Adjusted width */
     }
 
     #toggle-controls-btn {
-      margin-top: 10px; /* Reduced margin */
+      margin-top: 10px;
       background: #468D82;
       border: none;
       color: white;
-      padding: 5px 10px; /* Reduced padding */
+      padding: 5px 10px;
       text-align: center;
-      font-size: 8px; /* Reduced font size */
+      font-size: 10px; /* Adjusted font size */
       border-radius: 8px;
       cursor: pointer;
       transition: background 0.3s, transform 0.3s;
@@ -136,11 +137,11 @@
   <div class="timer-container">
     <h1>Pomodoro Timer</h1>
     <div class="timer">
-      <svg width="100" height="100">
-        <circle cx="50" cy="50" r="45" class="circle-bg" />
-        <circle cx="50" cy="50" r="45" class="circle-fg" id="seconds-circle" stroke-dasharray="282.74" stroke-dashoffset="282.74" />
-        <circle cx="50" cy="50" r="35" class="circle-bg" />
-        <circle cx="50" cy="50" r="35" class="circle-fg" id="minutes-circle" stroke-dasharray="219.91" stroke-dashoffset="219.91" />
+      <svg width="150" height="150">
+        <circle cx="75" cy="75" r="65" class="circle-bg" />
+        <circle cx="75" cy="75" r="65" class="circle-fg" id="seconds-circle" stroke-dasharray="408.41" stroke-dashoffset="408.41" />
+        <circle cx="75" cy="75" r="50" class="circle-bg" />
+        <circle cx="75" cy="75" r="50" class="circle-fg" id="minutes-circle" stroke-dasharray="314.16" stroke-dashoffset="314.16" />
       </svg>
       <div class="timer-text" id="timer-text">25:00</div>
     </div>
@@ -342,11 +343,11 @@
       const totalMinutes = parseInt(durationInput.value, 10);
       const totalSeconds = 60;
 
-      const minutesProgress = (1 - minutes / totalMinutes) * 219.91;
-      const secondsProgress = (1 - seconds / totalSeconds) * 282.74;
+      const minutesProgress = (1 - minutes / totalMinutes) * 314.16;
+      const secondsProgress = (1 - seconds / totalSeconds) * 408.41;
 
-      minutesCircle.style.strokeDashoffset = 219.91 - minutesProgress;
-      secondsCircle.style.strokeDashoffset = 282.74 - secondsProgress;
+      minutesCircle.style.strokeDashoffset = 314.16 - minutesProgress;
+      secondsCircle.style.strokeDashoffset = 408.41 - secondsProgress;
 
       const secondsRatio = seconds / totalSeconds;
       const minutesRatio = minutes / totalMinutes;
