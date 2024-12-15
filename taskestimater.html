@@ -6,12 +6,11 @@
     <title>Task Cost Calculator</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f9;
-            color: #333;
-            line-height: 1.6;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
+            background-color: #1b1d26; /* Dark theme background */
+            color: #fff; /* Light text */
             display: flex;
             justify-content: center;
             align-items: center;
@@ -19,57 +18,65 @@
         }
 
         .container {
-            background: #fff;
-            padding: 20px 40px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            background: #252934; /* Card-like background */
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
             width: 100%;
-            max-width: 400px;
+            max-width: 500px;
         }
 
         h1 {
             text-align: center;
             margin-bottom: 20px;
+            color: #e0e0e0;
         }
 
         label {
             display: block;
             margin-bottom: 8px;
             font-weight: bold;
+            color: #cfd1d8;
         }
 
-        input[type="number"] {
+        input[type="text"],
+        input[type="number"],
+        select {
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            border: none;
+            border-radius: 8px;
+            background: #1f232d;
+            color: #cfd1d8;
+            font-size: 14px;
         }
 
         button {
-            display: block;
             width: 100%;
-            padding: 10px;
+            padding: 12px;
             font-size: 16px;
+            font-weight: bold;
             color: #fff;
-            background-color: #333;
+            background: #4b78e1;
             border: none;
-            border-radius: 5px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.3s ease;
         }
 
         button:hover {
-            background-color: #555;
+            background: #5c8eff;
         }
 
         .result {
             margin-top: 20px;
-            padding: 10px;
-            background: #e2f0d9;
-            border-radius: 5px;
+            padding: 15px;
+            background: #333844;
+            border-radius: 8px;
+            color: #e0e0e0;
             text-align: center;
-            font-size: 18px;
+            font-size: 16px;
         }
     </style>
 </head>
@@ -77,23 +84,52 @@
 
     <div class="container">
         <h1>Task Cost Calculator</h1>
-        
-        <label for="salary">Annual Salary ($)</label>
-        <input type="number" id="salary" placeholder="Enter employee's annual salary" min="0" required>
-        
-        <label for="benefits">Benefits Percentage (%)</label>
-        <input type="number" id="benefits" placeholder="Enter benefit % (e.g., 25)" min="0" max="100" required>
-        
-        <label for="taskMinutes">Task Duration (Minutes Per Day)</label>
-        <input type="number" id="taskMinutes" placeholder="Enter task duration in minutes" min="0" max="480" required>
-        
-        <label for="vacationDays">Vacation Days Per Year</label>
-        <input type="number" id="vacationDays" placeholder="Enter vacation days (e.g., 10)" min="0" max="365" required>
-        
-        <label for="sickDays">Sick Days Per Year</label>
-        <input type="number" id="sickDays" placeholder="Enter sick days (e.g., 5)" min="0" max="365" required>
 
-        <button type="button" onclick="calculateTaskCost()">Calculate Cost</button>
+        <label for="task">Task Description</label>
+        <input type="text" id="task" placeholder="Describe the task" />
+
+        <label for="salary">Annual Salary ($)</label>
+        <select id="salary">
+            <option value="50000">50,000</option>
+            <option value="60000" selected>60,000</option>
+            <option value="70000">70,000</option>
+            <option value="80000">80,000</option>
+            <option value="100000">100,000</option>
+        </select>
+
+        <label for="benefits">Benefits Percentage (%)</label>
+        <select id="benefits">
+            <option value="10">10%</option>
+            <option value="20">20%</option>
+            <option value="25" selected>25%</option>
+            <option value="30">30%</option>
+            <option value="40">40%</option>
+        </select>
+
+        <label for="taskMinutes">Task Duration (Minutes Per Day)</label>
+        <select id="taskMinutes">
+            <option value="15">15 minutes</option>
+            <option value="30" selected>30 minutes</option>
+            <option value="60">1 hour</option>
+            <option value="120">2 hours</option>
+        </select>
+
+        <label for="vacationDays">Vacation Days Per Year</label>
+        <select id="vacationDays">
+            <option value="5">5 days</option>
+            <option value="10" selected>10 days</option>
+            <option value="15">15 days</option>
+            <option value="20">20 days</option>
+        </select>
+
+        <label for="sickDays">Sick Days Per Year</label>
+        <select id="sickDays">
+            <option value="0">0 days</option>
+            <option value="5" selected>5 days</option>
+            <option value="10">10 days</option>
+        </select>
+
+        <button onclick="calculateTaskCost()">Calculate Cost</button>
 
         <div class="result" id="result"></div>
     </div>
@@ -107,24 +143,19 @@
             const vacationDays = parseInt(document.getElementById('vacationDays').value);
             const sickDays = parseInt(document.getElementById('sickDays').value);
 
-            if (isNaN(salary) || isNaN(benefitsPercent) || isNaN(taskMinutes) || isNaN(vacationDays) || isNaN(sickDays)) {
-                document.getElementById('result').innerText = "Please enter all the required values.";
-                return;
-            }
-
-            // Calculate total compensation (salary + benefits)
+            // Total compensation (salary + benefits)
             const totalCompensation = salary + (salary * benefitsPercent);
 
-            // Calculate total working days in a year (52 weeks x 5 days) minus vacation and sick days
+            // Calculate total working days (52 weeks x 5 days) minus vacation and sick days
             const totalWorkingDays = (52 * 5) - (vacationDays + sickDays);
 
-            // Calculate hourly rate (based on 40 hours per week for total working weeks)
+            // Calculate hourly rate
             const totalWorkingWeeks = totalWorkingDays / 5; // total days / 5 days per week
             const totalWorkingHours = totalWorkingWeeks * 40; // 40 hours per week
             const hourlyRate = totalCompensation / totalWorkingHours;
 
             // Calculate daily cost for the task
-            const dailyCost = hourlyRate * (taskMinutes / 60); // Convert task minutes to hours
+            const dailyCost = hourlyRate * (taskMinutes / 60);
 
             // Calculate total annual cost for the task
             const annualCost = dailyCost * totalWorkingDays;
@@ -132,10 +163,10 @@
             // Display the result
             document.getElementById('result').innerHTML = `
                 <strong>Task Cost Summary:</strong><br>
-                Total Compensation (with benefits): $${totalCompensation.toFixed(2)}<br>
-                Hourly Rate (with benefits): $${hourlyRate.toFixed(2)}<br>
-                Daily Cost for the Task: $${dailyCost.toFixed(2)}<br>
-                Total Annual Cost for Task: <strong>$${annualCost.toFixed(2)}</strong>
+                Total Compensation: $${totalCompensation.toFixed(2)}<br>
+                Hourly Rate: $${hourlyRate.toFixed(2)}<br>
+                Daily Cost: $${dailyCost.toFixed(2)}<br>
+                Annual Task Cost: <strong>$${annualCost.toFixed(2)}</strong>
             `;
         }
     </script>
