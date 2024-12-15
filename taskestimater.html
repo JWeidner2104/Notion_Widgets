@@ -52,6 +52,21 @@
             font-size: 14px;
         }
 
+        select {
+            appearance: none; /* Remove default dropdown arrow */
+            cursor: pointer;
+            background: #1f232d;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border: 1px solid #4b78e1;
+        }
+
+        .hidden {
+            display: none;
+        }
+
         button {
             width: 100%;
             padding: 12px;
@@ -89,45 +104,55 @@
         <input type="text" id="task" placeholder="Describe the task" />
 
         <label for="salary">Annual Salary ($)</label>
-        <select id="salary">
+        <select id="salary" onchange="toggleOtherInput(this, 'salaryOther')">
             <option value="50000">50,000</option>
             <option value="60000" selected>60,000</option>
             <option value="70000">70,000</option>
             <option value="80000">80,000</option>
             <option value="100000">100,000</option>
+            <option value="other">Other</option>
         </select>
+        <input type="number" id="salaryOther" class="hidden" placeholder="Enter custom salary" />
 
         <label for="benefits">Benefits Percentage (%)</label>
-        <select id="benefits">
+        <select id="benefits" onchange="toggleOtherInput(this, 'benefitsOther')">
             <option value="10">10%</option>
             <option value="20">20%</option>
             <option value="25" selected>25%</option>
             <option value="30">30%</option>
             <option value="40">40%</option>
+            <option value="other">Other</option>
         </select>
+        <input type="number" id="benefitsOther" class="hidden" placeholder="Enter custom benefits %" />
 
         <label for="taskMinutes">Task Duration (Minutes Per Day)</label>
-        <select id="taskMinutes">
+        <select id="taskMinutes" onchange="toggleOtherInput(this, 'taskMinutesOther')">
             <option value="15">15 minutes</option>
             <option value="30" selected>30 minutes</option>
             <option value="60">1 hour</option>
             <option value="120">2 hours</option>
+            <option value="other">Other</option>
         </select>
+        <input type="number" id="taskMinutesOther" class="hidden" placeholder="Enter custom task duration (minutes)" />
 
         <label for="vacationDays">Vacation Days Per Year</label>
-        <select id="vacationDays">
+        <select id="vacationDays" onchange="toggleOtherInput(this, 'vacationDaysOther')">
             <option value="5">5 days</option>
             <option value="10" selected>10 days</option>
             <option value="15">15 days</option>
             <option value="20">20 days</option>
+            <option value="other">Other</option>
         </select>
+        <input type="number" id="vacationDaysOther" class="hidden" placeholder="Enter custom vacation days" />
 
         <label for="sickDays">Sick Days Per Year</label>
-        <select id="sickDays">
+        <select id="sickDays" onchange="toggleOtherInput(this, 'sickDaysOther')">
             <option value="0">0 days</option>
             <option value="5" selected>5 days</option>
             <option value="10">10 days</option>
+            <option value="other">Other</option>
         </select>
+        <input type="number" id="sickDaysOther" class="hidden" placeholder="Enter custom sick days" />
 
         <button onclick="calculateTaskCost()">Calculate Cost</button>
 
@@ -135,32 +160,53 @@
     </div>
 
     <script>
-        function calculateTaskCost() {
-            // Get form inputs
-            const salary = parseFloat(document.getElementById('salary').value);
-            const benefitsPercent = parseFloat(document.getElementById('benefits').value) / 100;
-            const taskMinutes = parseFloat(document.getElementById('taskMinutes').value);
-            const vacationDays = parseInt(document.getElementById('vacationDays').value);
-            const sickDays = parseInt(document.getElementById('sickDays').value);
+        function toggleOtherInput(selectElement, otherInputId) {
+            const otherInput = document.getElementById(otherInputId);
+            if (selectElement.value === 'other') {
+                otherInput.classList.remove('hidden');
+            } else {
+                otherInput.classList.add('hidden');
+            }
+        }
 
-            // Total compensation (salary + benefits)
+        function getFinalValue(selectId, otherInputId) {
+            const selectElement = document.getElementById(selectId);
+            const otherInput = document.getElementById(otherInputId);
+            if (selectElement.value === 'other' && otherInput.value) {
+                return parseFloat(otherInput.value);
+            }
+            return parseFloat(selectElement.value);
+        }
+
+        function calculateTaskCost() {
+            // Get inputs
+            const salary = getFinalValue('salary', 'salaryOther');
+            const benefitsPercent = getFinalValue('benefits', 'benefitsOther') / 100;
+            const taskMinutes = getFinalValue('taskMinutes', 'taskMinutesOther');
+            const vacationDays = getFinalValue('vacationDays', 'vacationDaysOther');
+            const sickDays = getFinalValue('sickDays', 'sickDaysOther');
+
+            if (isNaN(salary) || isNaN(benefitsPercent) || isNaN(taskMinutes) || isNaN(vacationDays) || isNaN(sickDays)) {
+                document.getElementById('result').innerText = "Please fill out all required fields.";
+                return;
+            }
+
+            // Calculate total compensation
             const totalCompensation = salary + (salary * benefitsPercent);
 
-            // Calculate total working days (52 weeks x 5 days) minus vacation and sick days
+            // Calculate total working days
             const totalWorkingDays = (52 * 5) - (vacationDays + sickDays);
 
             // Calculate hourly rate
-            const totalWorkingWeeks = totalWorkingDays / 5; // total days / 5 days per week
+            const totalWorkingWeeks = totalWorkingDays / 5; // Total days / 5 workdays per week
             const totalWorkingHours = totalWorkingWeeks * 40; // 40 hours per week
             const hourlyRate = totalCompensation / totalWorkingHours;
 
-            // Calculate daily cost for the task
+            // Calculate daily and annual task cost
             const dailyCost = hourlyRate * (taskMinutes / 60);
-
-            // Calculate total annual cost for the task
             const annualCost = dailyCost * totalWorkingDays;
 
-            // Display the result
+            // Display results
             document.getElementById('result').innerHTML = `
                 <strong>Task Cost Summary:</strong><br>
                 Total Compensation: $${totalCompensation.toFixed(2)}<br>
