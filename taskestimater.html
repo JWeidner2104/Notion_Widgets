@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Cost Calculator</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
+            color: #333;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            background: #fff;
+            padding: 20px 40px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            width: 100%;
+            max-width: 400px;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            color: #fff;
+            background-color: #333;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #555;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background: #e2f0d9;
+            border-radius: 5px;
+            text-align: center;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h1>Task Cost Calculator</h1>
+        
+        <label for="salary">Annual Salary ($)</label>
+        <input type="number" id="salary" placeholder="Enter employee's annual salary" min="0" required>
+        
+        <label for="benefits">Benefits Percentage (%)</label>
+        <input type="number" id="benefits" placeholder="Enter benefit % (e.g., 25)" min="0" max="100" required>
+        
+        <label for="taskMinutes">Task Duration (Minutes Per Day)</label>
+        <input type="number" id="taskMinutes" placeholder="Enter task duration in minutes" min="0" max="480" required>
+        
+        <label for="vacationDays">Vacation Days Per Year</label>
+        <input type="number" id="vacationDays" placeholder="Enter vacation days (e.g., 10)" min="0" max="365" required>
+        
+        <label for="sickDays">Sick Days Per Year</label>
+        <input type="number" id="sickDays" placeholder="Enter sick days (e.g., 5)" min="0" max="365" required>
+
+        <button type="button" onclick="calculateTaskCost()">Calculate Cost</button>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        function calculateTaskCost() {
+            // Get form inputs
+            const salary = parseFloat(document.getElementById('salary').value);
+            const benefitsPercent = parseFloat(document.getElementById('benefits').value) / 100;
+            const taskMinutes = parseFloat(document.getElementById('taskMinutes').value);
+            const vacationDays = parseInt(document.getElementById('vacationDays').value);
+            const sickDays = parseInt(document.getElementById('sickDays').value);
+
+            if (isNaN(salary) || isNaN(benefitsPercent) || isNaN(taskMinutes) || isNaN(vacationDays) || isNaN(sickDays)) {
+                document.getElementById('result').innerText = "Please enter all the required values.";
+                return;
+            }
+
+            // Calculate total compensation (salary + benefits)
+            const totalCompensation = salary + (salary * benefitsPercent);
+
+            // Calculate total working days in a year (52 weeks x 5 days) minus vacation and sick days
+            const totalWorkingDays = (52 * 5) - (vacationDays + sickDays);
+
+            // Calculate hourly rate (based on 40 hours per week for total working weeks)
+            const totalWorkingWeeks = totalWorkingDays / 5; // total days / 5 days per week
+            const totalWorkingHours = totalWorkingWeeks * 40; // 40 hours per week
+            const hourlyRate = totalCompensation / totalWorkingHours;
+
+            // Calculate daily cost for the task
+            const dailyCost = hourlyRate * (taskMinutes / 60); // Convert task minutes to hours
+
+            // Calculate total annual cost for the task
+            const annualCost = dailyCost * totalWorkingDays;
+
+            // Display the result
+            document.getElementById('result').innerHTML = `
+                <strong>Task Cost Summary:</strong><br>
+                Total Compensation (with benefits): $${totalCompensation.toFixed(2)}<br>
+                Hourly Rate (with benefits): $${hourlyRate.toFixed(2)}<br>
+                Daily Cost for the Task: $${dailyCost.toFixed(2)}<br>
+                Total Annual Cost for Task: <strong>$${annualCost.toFixed(2)}</strong>
+            `;
+        }
+    </script>
+
+</body>
+</html>
